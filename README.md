@@ -19,6 +19,7 @@
 - `-braces (-B)`  : Флаг для замены скобок [], {} на () (По умолчанию: False).
 
 #### Example
+
 ```bash
 python main.py -filename input.pdf -output output.txt -symbol '##' -upper 20 -lcut 3 -braces true
 ```
@@ -33,15 +34,19 @@ python main.py -filename input.pdf -output output.txt -symbol '##' -upper 20 -lc
 
 * С помощью pip:
 <br>
+
 ```bash
 pip install -r requirements.txt
 ```
 
+
 * С помощью poetry:
 <br>
+
 ```bash
 poetry install
 ```
+
 <br>
 
 3. Запустите программу.
