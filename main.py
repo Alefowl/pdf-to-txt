@@ -7,12 +7,7 @@ import re
 import fitz
 
 
-def replace_ligatures(ligatures : Dict[str, str], text : str, symbol : str) -> str:    
-    for search, replace in ligatures.items():
-        text = text.replace(search, replace)
-    return text
-
-
+# Util function.
 def replace(text : str, numbers : bool, braces : bool) -> str:
   if numbers:
     text = re.sub(r'\d+', '', text)
@@ -23,27 +18,41 @@ def replace(text : str, numbers : bool, braces : bool) -> str:
   return text
 
 
+# Main function.
 def convert(filename : str, output : str, symbol : str, upper_limit : int,
-           low_cutoff : int, high_cutoff : int, nums : bool, braces : bool ) -> None:
-  
-  # Common ligatures present in latin alphabet.
-  ligatures : Dict[str, str] = {
-    "ﬀ"  : "ff",
-    "ﬁ"  : "fi",
-    "ﬂ"  : "fl",
-    "ﬃ"  : "ffi",
-    "ﬄ"  : "ffl",
-    "ﬅ"  : "ft",
-    "ﬆ"  : "st",
-    "Ꜳ" : "AA",
-    "Æ"  : "AE",
-    "ꜳ"  : "aa",
-    "\0" : symbol if symbol is not None else ""
-  }
-  
+           low_cutoff : int, high_cutoff : int, nums : bool, braces : bool,
+           ligatures : bool, align : str, dehy : bool) -> None:
+    
   pdf_file = fitz.open(filename)
   text  : str = ""
   lines : List[str] = []
+    
+  fitz.TEXT_PRESERVE_LIGATURES = 1 if ligatures else 0
+  fitz.TEXT_DEHYPHENATE = 1 if dehy else 0
+  
+  match align:
+    case 'J':
+      fitz.TEXT_ALIGN_JUSTIFY = 1
+      fitz.TEXT_ALIGN_LEFT    = 0
+      fitz.TEXT_ALIGN_RIGHT   = 0
+      fitz.TEXT_ALIGN_CENTER  = 0
+    case 'L':
+      fitz.TEXT_ALIGN_JUSTIFY = 0
+      fitz.TEXT_ALIGN_LEFT    = 1
+      fitz.TEXT_ALIGN_RIGHT   = 0
+      fitz.TEXT_ALIGN_CENTER  = 0
+    case 'R':
+      fitz.TEXT_ALIGN_JUSTIFY = 0
+      fitz.TEXT_ALIGN_LEFT    = 0
+      fitz.TEXT_ALIGN_RIGHT   = 1
+      fitz.TEXT_ALIGN_CENTER  = 0
+    case 'C':
+      fitz.TEXT_ALIGN_JUSTIFY = 0
+      fitz.TEXT_ALIGN_LEFT    = 0
+      fitz.TEXT_ALIGN_RIGHT   = 0
+      fitz.TEXT_ALIGN_CENTER  = 1
+    case _:
+      pass
     
   with open(output, 'w+', encoding='utf-8') as file:
     for page_num in range(low_cutoff,
@@ -70,8 +79,6 @@ def convert(filename : str, output : str, symbol : str, upper_limit : int,
             text += f"{line}\n"
         
       if len(text) != 0:
-        # Replace ligatures with valid symbols.
-        text = replace_ligatures(ligatures, text, symbol)
         # Delete numbers and braces from text.
         text = replace(text, nums, braces)
         # Write text to the file.
@@ -120,12 +127,26 @@ if __name__ == '__main__':
   
   # Replaces braces [], {} with ().
   parser.add_argument('-braces', metavar='-B', nargs='?',
-                      type=bool, help="Replaces all [] with ().", default=False)
+                      type=bool, help='Replaces all [] with ().', default=False)
+  
+  # Replace the ligatures.
+  parser.add_argument('-ligatures', metavar='-L', nargs='?',
+                      type=bool, help='Replaces ligatures.', default=True)
+  
+  # Text alignment.
+  parser.add_argument('-align', metavar='-A', nargs='?',
+                      type=str, help='Specifies text alignment. L for left\n, C for center\n,' +
+                      'R for right\n, J for justify', default='J')
+  
+  # Dehypenate the text.
+  parser.add_argument('-dehy', metavar='-D', nargs='?',
+                      type=bool, help='Ignore hyphens at line ends and join with next line', 
+                      default=True)
   
   args = parser.parse_args()
   
   convert(filename=args.filename, output=args.output, 
           symbol=args.symbol, upper_limit=args.upper,
           low_cutoff=args.lcut, high_cutoff=args.hcut,
-          nums=args.nums, braces=args.braces)
-  
+          nums=args.nums, braces=args.braces, ligatures=args.ligatures,
+          align=args.align, dehy=args.dehy)
