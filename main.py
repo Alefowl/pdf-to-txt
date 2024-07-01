@@ -106,7 +106,8 @@ if __name__ == '__main__':
   
   # Low page cutoff.
   parser.add_argument('-lcut', metavar='-L', nargs='?',
-                      type=int, help="Pages from the start of pdf that are not needed.")
+                      type=int, help="Pages from the start of pdf that are not needed.",
+                      default=0)
   
   # High page cutoff.
   parser.add_argument('-hcut', metavar='-H', nargs='?',

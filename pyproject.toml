@@ -44,6 +44,8 @@ trove-classifiers = "2024.5.22"
 urllib3 = "2.2.2"
 virtualenv = "20.26.3"
 zipp = "3.19.2"
+pymupdf = "1.24.7"
+pymupdfb = "1.24.6"
 
 
 [build-system]
