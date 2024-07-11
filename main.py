@@ -6,86 +6,28 @@ import re
 # Imported library.
 import fitz
 
+from src.utils import ( set_fitz, get_pdf, close_pdf )
+from src.automatic import ( convert )
+from src.interactive import ( start )
 
-# Util function.
-def replace(text : str, numbers : bool, braces : bool) -> str:
-  if numbers:
-    text = re.sub(r'\d+', '', text)
-  if braces:
-    text = text.replace("[", "(").replace("]", ")")
-    text = text.replace("{", "(").replace("}", ")")
-  
-  return text
-
-
-# Main function.
-def convert(filename : str, output : str, symbol : str, upper_limit : int,
+def main(filename : str, output : str, symbol : str, upper_limit : int,
            low_cutoff : int, high_cutoff : int, nums : bool, braces : bool,
-           ligatures : bool, align : str, dehy : bool) -> None:
-    
-  pdf_file = fitz.open(filename)
-  text  : str = ""
-  lines : List[str] = []
-    
-  fitz.TEXT_PRESERVE_LIGATURES = 1 if ligatures else 0
-  fitz.TEXT_DEHYPHENATE = 1 if dehy else 0
+           ligatures : bool, align : str, dehy : bool, mode : bool, ocr : bool) -> None:
   
-  match align:
-    case 'J':
-      fitz.TEXT_ALIGN_JUSTIFY = 1
-      fitz.TEXT_ALIGN_LEFT    = 0
-      fitz.TEXT_ALIGN_RIGHT   = 0
-      fitz.TEXT_ALIGN_CENTER  = 0
-    case 'L':
-      fitz.TEXT_ALIGN_JUSTIFY = 0
-      fitz.TEXT_ALIGN_LEFT    = 1
-      fitz.TEXT_ALIGN_RIGHT   = 0
-      fitz.TEXT_ALIGN_CENTER  = 0
-    case 'R':
-      fitz.TEXT_ALIGN_JUSTIFY = 0
-      fitz.TEXT_ALIGN_LEFT    = 0
-      fitz.TEXT_ALIGN_RIGHT   = 1
-      fitz.TEXT_ALIGN_CENTER  = 0
-    case 'C':
-      fitz.TEXT_ALIGN_JUSTIFY = 0
-      fitz.TEXT_ALIGN_LEFT    = 0
-      fitz.TEXT_ALIGN_RIGHT   = 0
-      fitz.TEXT_ALIGN_CENTER  = 1
-    case _:
-      pass
-    
-  with open(output, 'w+', encoding='utf-8') as file:
-    for page_num in range(low_cutoff,
-                          high_cutoff if high_cutoff is not None else pdf_file.page_count):
-      
-      lines = pdf_file[page_num].get_text().split('\n')
-      
-      for i, line in enumerate(lines):
-        # Chapter name probably.
-        if 1 < len(line) <= upper_limit and line[0].isupper():
-          text += f"{line}\n\n"
-        # Not a chapter name.
-        elif len(line) > 1:
-          # Start of a paragraph ?
-          if i + 1 < len(lines) and any(lines[i + 1]):
-            # Probably
-            if line.endswith(('.', '?', '!')) and lines[i + 1][0].isupper() and len(line) <= len(lines[i + 1]) - 6:
-              text += f"{line}\n\n"
-            # No
-            else:
-              text += f"{line}\n"
-          # No  
-          else:
-            text += f"{line}\n"
-        
-      if len(text) != 0:
-        # Delete numbers and braces from text.
-        text = replace(text, nums, braces)
-        # Write text to the file.
-        file.write(text)
-        text = ""
+  # Settings for fitz.
+  set_fitz(align=align, ligatures=ligatures, dehy=dehy)
   
-  pdf_file.close()
+  # Get pdf file.
+  pdf = get_pdf(filename=filename, ligatures=ligatures, align=align, dehy=dehy)
+  
+  if (mode):
+    start(pdf, output)
+  else:
+    convert(pdf_file=pdf, output=output, symbol=symbol, upper_limit=upper_limit, 
+            low_cutoff=low_cutoff, high_cutoff=high_cutoff, nums=nums, braces=braces)
+  
+  # Close the pdf file.
+  close_pdf(pdf)
   
   return None
 
@@ -143,10 +85,20 @@ if __name__ == '__main__':
                       type=bool, help='Ignore hyphens at line ends and join with next line', 
                       default=True)
   
+  # Use interactive mode.
+  parser.add_argument("-mode", metavar='-M', nargs='?', 
+                      type=bool, help='Use interactive mode.',
+                      default=False)
+  
+  # OCR
+  parser.add_argument('-ocr', metavar='-R', nargs='?',
+                      type=bool, help='Use OCR for pdf.',
+                      default=False)
+  
   args = parser.parse_args()
   
-  convert(filename=args.filename, output=args.output, 
-          symbol=args.symbol, upper_limit=args.upper,
-          low_cutoff=args.lcut, high_cutoff=args.hcut,
-          nums=args.nums, braces=args.braces, ligatures=args.ligatures,
-          align=args.align, dehy=args.dehy)
+  main(filename=args.filename, output=args.output, 
+            symbol=args.symbol, upper_limit=args.upper,
+            low_cutoff=args.lcut, high_cutoff=args.hcut,
+            nums=args.nums, braces=args.braces, ligatures=args.ligatures,
+            align=args.align, dehy=args.dehy, mode=args.mode, ocr=args.ocr)
