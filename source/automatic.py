@@ -1,6 +1,7 @@
 import fitz
-from utils import set_fitz, replace
-from typing import List
+from source.formatting import ( replace )
+from typing import ( List )
+
 
 # None interactive mode.
 def convert(pdf_file, output : str, symbol : str, upper_limit : int,

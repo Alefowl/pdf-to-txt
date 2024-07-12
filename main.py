@@ -1,4 +1,4 @@
-# Python std.
+# Python stl.
 from typing import List, Dict
 import argparse
 import re
@@ -6,9 +6,11 @@ import re
 # Imported library.
 import fitz
 
-from src.utils import ( set_fitz, get_pdf, close_pdf )
-from src.automatic import ( convert )
-from src.interactive import ( start )
+# Project files.
+from source.utils import ( set_fitz, get_pdf, close_pdf )
+from source.interactive import ( start, start_ocr, finish, finish_ocr )
+from source.automatic import ( convert, convert_ocr )
+
 
 def main(filename : str, output : str, symbol : str, upper_limit : int,
            low_cutoff : int, high_cutoff : int, nums : bool, braces : bool,
@@ -28,7 +30,6 @@ def main(filename : str, output : str, symbol : str, upper_limit : int,
   
   # Close the pdf file.
   close_pdf(pdf)
-  
   return None
 
 
@@ -46,8 +47,10 @@ if __name__ == '__main__':
                       type=str, help='Name of the txt file.',
                       default='output.txt')
   # Errored symbol.
-  parser.add_argument('-symbol', metavar='-S', nargs='?',
-                      type=str, help="If program has troubles processing text.",)
+  # parser.add_argument('-symbol', metavar='-S', nargs='?',
+  #                     type=str, help="If program has troubles processing text.",)
+  # Derpicated.
+  
   # Upper limit.
   parser.add_argument('-upper', metavar='-U', nargs='?',
                       type=int, help="Upper limit of nummber of characters in chapter names.",
