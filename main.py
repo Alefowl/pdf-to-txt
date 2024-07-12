@@ -1,19 +1,17 @@
 # Python stl.
-from typing import List, Dict
 import argparse
-import re
 
 # Imported library.
 import fitz
 
 # Project files.
 from source.utils import ( set_fitz, get_pdf, close_pdf )
-from source.automatic import ( convert, convert_ocr )
+from source.automatic import ( convert )
 
 
 def main(filename : str, output : str, upper_limit : int, low_cutoff : int, 
     high_cutoff : int, nums : bool, braces : bool, ligatures : bool, 
-    align : str, dehy : bool, ocr : bool) -> None:
+    align : str, dehy : bool) -> int:
   
   # Settings for fitz.
   set_fitz(align=align, ligatures=ligatures, dehy=dehy)
@@ -25,16 +23,12 @@ def main(filename : str, output : str, upper_limit : int, low_cutoff : int,
     print(f"Error: {e}")
     return 1
   
-  if (ocr):
-    convert_ocr(pdf_file=pdf, output=output, upper_limit=upper_limit, 
-      low_cutoff=low_cutoff, high_cutoff=high_cutoff, nums=nums, braces=braces)
-  else:
-    convert(pdf_file=pdf, output=output, upper_limit=upper_limit, 
-      low_cutoff=low_cutoff, high_cutoff=high_cutoff, nums=nums, braces=braces)
+  convert(pdf_file=pdf, output=output, upper_limit=upper_limit, 
+    low_cutoff=low_cutoff, high_cutoff=high_cutoff, nums=nums, braces=braces)
   
   # Close the pdf file.
   close_pdf(pdf)
-  return None
+  return 0
 
 
 if __name__ == '__main__':
@@ -95,10 +89,10 @@ if __name__ == '__main__':
                       type=bool, help='Ignore hyphens at line ends and join with next line', 
                       default=True)
   
-  # OCR
-  parser.add_argument('-ocr', metavar='-R', nargs='?',
-                      type=bool, help='Use OCR for pdf.',
-                      default=False)
+  # OCR hard to do it atm.
+  # parser.add_argument('-ocr', metavar='-R', nargs='?',
+  #                     type=bool, help='Use OCR for pdf.',
+  #                     default=False)
   
   args = parser.parse_args()
   
@@ -106,4 +100,4 @@ if __name__ == '__main__':
       upper_limit=args.upper,
       low_cutoff=args.lcut, high_cutoff=args.hcut,
       nums=args.nums, braces=args.braces, ligatures=args.ligatures,
-      align=args.align, dehy=args.dehy, ocr=args.ocr)
+      align=args.align, dehy=args.dehy)
