@@ -4,8 +4,9 @@ import fitz
 # Stl
 from typing import ( List, Any )
 
-from source.dehyp import ( process )
-from source.formatting import ( replace )
+from utility.dehyp import process
+from utility.formatting import replace
+
 
 # None interactive mode.
 def convert(pdf_file : fitz.open, output : str, upper_limit : int,
@@ -50,10 +51,11 @@ def convert(pdf_file : fitz.open, output : str, upper_limit : int,
         
     if len(buffer) != 0:
       # Delete numbers and braces from text.
-      buffer = replace(text, nums, braces)
+      buffer = replace(buffer, nums, braces)
       buffer = process(buffer, pattern)
       text += buffer
-    with open(output, '+w', encoding='utf-8') as f:
-      f.write(text)
+      buffer = ""
+  with open(output, '+w', encoding='utf-8') as f:
+    f.write(text)
   
   return None

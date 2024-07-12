@@ -1,5 +1,4 @@
 import fitz
-import re
 
 
 def set_fitz(align : str, ligatures : bool, dehy : bool) -> None:

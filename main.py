@@ -5,8 +5,8 @@ import argparse
 import fitz
 
 # Project files.
-from source.utils import ( set_fitz, get_pdf, close_pdf )
-from source.automatic import ( convert )
+from utility.utils import ( set_fitz, get_pdf, close_pdf )
+from utility.automatic import ( convert )
 
 
 def main(filename : str, output : str, upper_limit : int, low_cutoff : int, 
@@ -40,10 +40,9 @@ if __name__ == '__main__':
   )
   
   # Filename.
-  # TODO change required and delete default.
   parser.add_argument('-filename', metavar='-F', nargs='?', 
                       type=str, help="Path to a pdf file.",
-                      required=False, default='text.pdf')
+                      required=True)
   
   # Output filename.
   parser.add_argument('-output', metavar='-O', nargs='?',
