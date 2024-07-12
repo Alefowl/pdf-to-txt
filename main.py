@@ -24,9 +24,13 @@ def main(filename : str, output : str, upper_limit : int, low_cutoff : int,
   except Exception as e:
     print(f"Error: {e}")
     return 1
-    
-  convert(pdf_file=pdf, output=output, upper_limit=upper_limit, 
-    low_cutoff=low_cutoff, high_cutoff=high_cutoff, nums=nums, braces=braces)
+  
+  if (ocr):
+    convert_ocr(pdf_file=pdf, output=output, upper_limit=upper_limit, 
+      low_cutoff=low_cutoff, high_cutoff=high_cutoff, nums=nums, braces=braces)
+  else:
+    convert(pdf_file=pdf, output=output, upper_limit=upper_limit, 
+      low_cutoff=low_cutoff, high_cutoff=high_cutoff, nums=nums, braces=braces)
   
   # Close the pdf file.
   close_pdf(pdf)
