@@ -18,7 +18,6 @@ more-itertools==10.3.0
 msgpack==1.0.8
 packaging==24.1
 pexpect==4.9.0
-pillow==10.4.0
 pkginfo==1.11.1
 platformdirs==4.2.2
 poetry==1.8.3
@@ -28,7 +27,6 @@ ptyprocess==0.7.0
 PyMuPDF==1.24.7
 PyMuPDFb==1.24.6
 pyproject_hooks==1.1.0
-pytesseract==0.3.10
 pywin32-ctypes==0.2.2
 rapidfuzz==3.9.3
 requests==2.32.3
