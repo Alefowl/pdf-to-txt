@@ -11,23 +11,25 @@ from source.automatic import ( convert )
 
 def main(filename : str, output : str, upper_limit : int, low_cutoff : int, 
     high_cutoff : int, nums : bool, braces : bool, ligatures : bool, 
-    align : str, dehy : bool) -> int:
+    align : str, pattern : str) -> int:
   
   # Settings for fitz.
-  set_fitz(align=align, ligatures=ligatures, dehy=dehy)
+  set_fitz(align=align, ligatures=ligatures, dehy=True)
   
   # Get pdf file.
   try:
-    pdf = get_pdf(filename=filename, ligatures=ligatures, align=align, dehy=dehy)
+    pdf = get_pdf(filename=filename, ligatures=ligatures, align=align, dehy=True)
   except Exception as e:
     print(f"Error: {e}")
     return 1
   
-  convert(pdf_file=pdf, output=output, upper_limit=upper_limit, 
-    low_cutoff=low_cutoff, high_cutoff=high_cutoff, nums=nums, braces=braces)
+  convert(pdf_file=pdf, output=output, upper_limit=upper_limit,
+          low_cutoff=low_cutoff, high_cutoff=high_cutoff, nums=nums,
+          braces=braces, pattern=pattern)
   
   # Close the pdf file.
   close_pdf(pdf)
+  
   return 0
 
 
@@ -38,9 +40,10 @@ if __name__ == '__main__':
   )
   
   # Filename.
+  # TODO change required and delete default.
   parser.add_argument('-filename', metavar='-F', nargs='?', 
                       type=str, help="Path to a pdf file.",
-                      required=True)
+                      required=False, default='text.pdf')
   
   # Output filename.
   parser.add_argument('-output', metavar='-O', nargs='?',
@@ -83,16 +86,15 @@ if __name__ == '__main__':
   parser.add_argument('-align', metavar='-A', nargs='?',
                       type=str, help='Specifies text alignment. L for left\n, C for center\n,' +
                       'R for right\n, J for justify', default='J')
-  
-  # Dehypenate the text.
-  parser.add_argument('-dehy', metavar='-D', nargs='?',
-                      type=bool, help='Ignore hyphens at line ends and join with next line', 
-                      default=True)
-  
+    
   # OCR hard to do it atm.
   # parser.add_argument('-ocr', metavar='-R', nargs='?',
   #                     type=bool, help='Use OCR for pdf.',
   #                     default=False)
+  
+  # Pattern for dehyphination.
+  parser.add_argument('-pat', metavar='-P', nargs='?',
+                      type=str, help="Pattern for dehyphenation", default="-\n")
   
   args = parser.parse_args()
   
@@ -100,4 +102,4 @@ if __name__ == '__main__':
       upper_limit=args.upper,
       low_cutoff=args.lcut, high_cutoff=args.hcut,
       nums=args.nums, braces=args.braces, ligatures=args.ligatures,
-      align=args.align, dehy=args.dehy)
+      align=args.align, pattern = args.pat)

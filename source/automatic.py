@@ -1,13 +1,15 @@
 # Imported libraries.
 import fitz
 
-from source.formatting import ( replace )
-from typing import ( List )
+# Stl
+from typing import ( List, Any )
 
+from source.dehyp import ( process )
+from source.formatting import ( replace )
 
 # None interactive mode.
 def convert(pdf_file : fitz.open, output : str, upper_limit : int,
-  low_cutoff : int, high_cutoff : int, nums : bool, braces : bool) -> None:
+  low_cutoff : int, high_cutoff : int, nums : bool, braces : bool, pattern : str) -> None:
   """Function for automatic pdf to text conversion.
   Args:
       pdf_file (_type_): path to pdf file.
@@ -20,8 +22,9 @@ def convert(pdf_file : fitz.open, output : str, upper_limit : int,
       braces (bool): replace all {} and [] with ().
   """
   
-  text  : str = ""
-  lines : List[str] = []
+  text   : str = ""
+  buffer : str = ""
+  lines  : List[Any] = []
   for page_num in range(low_cutoff,
                         high_cutoff if high_cutoff is not None else pdf_file.page_count):
       
@@ -30,24 +33,26 @@ def convert(pdf_file : fitz.open, output : str, upper_limit : int,
     for i, line in enumerate(lines):
       # Chapter name probably.
       if 1 < len(line) <= upper_limit and line[0].isupper():
-          text += f"{line}\n\n"
+          buffer += f"{line}\n\n"
         # Not a chapter name.
       elif len(line) > 1:
           # Start of a paragraph ?
           if i + 1 < len(lines) and any(lines[i + 1]):
             # Probably
             if line.endswith(('.', '?', '!')) and lines[i + 1][0].isupper() and len(line) <= len(lines[i + 1]) - 6:
-              text += f"{line}\n\n"
+              buffer += f"{line}\n\n"
             # No
             else:
-              text += f"{line}\n"
+              buffer += f"{line}\n"
           # No  
           else:
-            text += f"{line}\n"
+            buffer += f"{line}\n"
         
-  if len(text) != 0:
-    # Delete numbers and braces from text.
-    text = replace(text, nums, braces)
+    if len(buffer) != 0:
+      # Delete numbers and braces from text.
+      buffer = replace(text, nums, braces)
+      buffer = process(buffer, pattern)
+      text += buffer
     with open(output, '+w', encoding='utf-8') as f:
       f.write(text)
   
