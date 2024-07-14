@@ -1,16 +1,16 @@
 # Imported libraries.
+from sys import flags
 import fitz
 
 # Stl
 from typing import ( List, Any )
 
-from utility.dehyp import process
 from utility.formatting import replace
 
 
 # None interactive mode.
-def convert(pdf_file : fitz.open, output : str, upper_limit : int,
-  low_cutoff : int, high_cutoff : int, nums : bool, braces : bool, pattern : str) -> None:
+def convert(pdf_file : fitz.open, output : str, upper_limit : int, flags : int,
+  low_cutoff : int, high_cutoff : int, nums : bool, braces : bool) -> None:
   """Function for automatic pdf to text conversion.
   Args:
       pdf_file (_type_): path to pdf file.
@@ -29,7 +29,7 @@ def convert(pdf_file : fitz.open, output : str, upper_limit : int,
   for page_num in range(low_cutoff,
                         high_cutoff if high_cutoff is not None else pdf_file.page_count):
       
-    lines = pdf_file[page_num].get_text().split('\n')
+    lines = pdf_file[page_num].get_text(flags=flags).split('\n')
       
     for i, line in enumerate(lines):
       # Chapter name probably.
@@ -52,7 +52,6 @@ def convert(pdf_file : fitz.open, output : str, upper_limit : int,
     if len(buffer) != 0:
       # Delete numbers and braces from text.
       buffer = replace(buffer, nums, braces)
-      buffer = process(buffer, pattern)
       text += buffer
       buffer = ""
   with open(output, '+w', encoding='utf-8') as f:

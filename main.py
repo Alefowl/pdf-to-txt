@@ -11,21 +11,22 @@ from utility.automatic import ( convert )
 
 def main(filename : str, output : str, upper_limit : int, low_cutoff : int, 
     high_cutoff : int, nums : bool, braces : bool, ligatures : bool, 
-    align : str, pattern : str) -> int:
+    align : str, dehy : bool) -> int:
   
   # Settings for fitz.
-  set_fitz(align=align, ligatures=ligatures, dehy=True)
+  flags = set_fitz(align=align, ligatures=ligatures, dehy=dehy)
   
   # Get pdf file.
   try:
-    pdf = get_pdf(filename=filename, ligatures=ligatures, align=align, dehy=True)
+    pdf : fitz.open = get_pdf(filename=filename)
   except Exception as e:
     print(f"Error: {e}")
     return 1
   
+  # Convert pdf file to txt file.
   convert(pdf_file=pdf, output=output, upper_limit=upper_limit,
           low_cutoff=low_cutoff, high_cutoff=high_cutoff, nums=nums,
-          braces=braces, pattern=pattern)
+          braces=braces, flags=flags)
   
   # Close the pdf file.
   close_pdf(pdf)
@@ -86,14 +87,14 @@ if __name__ == '__main__':
                       type=str, help='Specifies text alignment. L for left\n, C for center\n,' +
                       'R for right\n, J for justify', default='J')
     
-  # OCR hard to do it atm.
+  # OCR, hard to do it atm.
   # parser.add_argument('-ocr', metavar='-R', nargs='?',
   #                     type=bool, help='Use OCR for pdf.',
   #                     default=False)
   
-  # Pattern for dehyphination.
-  parser.add_argument('-pat', metavar='-P', nargs='?',
-                      type=str, help="Pattern for dehyphenation", default="-\n")
+  parser.add_argument('-dehy', metavar='-D', nargs='?',
+                      type=bool, help='Dehyphinate text.',
+                      default=False)
   
   args = parser.parse_args()
   
@@ -101,4 +102,4 @@ if __name__ == '__main__':
       upper_limit=args.upper,
       low_cutoff=args.lcut, high_cutoff=args.hcut,
       nums=args.nums, braces=args.braces, ligatures=args.ligatures,
-      align=args.align, pattern = args.pat)
+      align=args.align, dehy=args.dehy)

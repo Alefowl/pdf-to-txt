@@ -1,7 +1,7 @@
 import fitz
 
 
-def set_fitz(align : str, ligatures : bool, dehy : bool) -> None:
+def set_fitz(align : str, ligatures : bool, dehy : bool) -> int:
   """Function for settings for fitz.
   Args:
       align (str): Text alignment, can be J - justify, L - left,
@@ -9,42 +9,30 @@ def set_fitz(align : str, ligatures : bool, dehy : bool) -> None:
       ligatures (bool): Remove all ligatures in the text.
       dehy (bool): Remove all dehyphinated lines from the text.
   """
-
-  fitz.TEXT_PRESERVE_LIGATURES = 1 if ligatures else 0
   
-  fitz.TEXT_DEHYPHENATE = 1 if dehy else 0
+  flags : int = 0
+  flags |= fitz.TEXT_PRESERVE_LIGATURES if ligatures else 0
+  flags |= fitz.TEXT_DEHYPHENATE if dehy else 0
   
   match align:
     case 'J':
-      fitz.TEXT_ALIGN_JUSTIFY = 1
-      fitz.TEXT_ALIGN_LEFT    = 0
-      fitz.TEXT_ALIGN_RIGHT   = 0
-      fitz.TEXT_ALIGN_CENTER  = 0
+      flags |= fitz.TEXT_ALIGN_JUSTIFY
     case 'L':
-      fitz.TEXT_ALIGN_JUSTIFY = 0
-      fitz.TEXT_ALIGN_LEFT    = 1
-      fitz.TEXT_ALIGN_RIGHT   = 0
-      fitz.TEXT_ALIGN_CENTER  = 0
+      flags |= fitz.TEXT_ALIGN_LEFT
     case 'R':
-      fitz.TEXT_ALIGN_JUSTIFY = 0
-      fitz.TEXT_ALIGN_LEFT    = 0
-      fitz.TEXT_ALIGN_RIGHT   = 1
-      fitz.TEXT_ALIGN_CENTER  = 0
+      flags |= fitz.TEXT_ALIGN_RIGHT
     case 'C':
-      fitz.TEXT_ALIGN_JUSTIFY = 0
-      fitz.TEXT_ALIGN_LEFT    = 0
-      fitz.TEXT_ALIGN_RIGHT   = 0
-      fitz.TEXT_ALIGN_CENTER  = 1
+      flags |= fitz.TEXT_ALIGN_CENTER
     case _:
         pass
-  return None
+
+  return flags
 
 
-def get_pdf(filename : str, ligatures : bool, align : str, dehy : bool):
-  set_fitz(ligatures=ligatures, align=align, dehy=dehy)
+def get_pdf(filename : str) -> fitz.open:
   pdf = fitz.open(filename=filename)
   return pdf
 
 
-def close_pdf(pdf) -> None:
+def close_pdf(pdf : fitz.open) -> None:
   pdf.close()
